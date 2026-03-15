@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Surprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+/* BASE */
+body{
+  margin:0;
+  background:#07071a;
+  color:#9ffcff;
+  font-family:'VT323';
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  text-align:center;
+  position:relative;
+}
+body:before{
+  content:"";
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 2px, transparent 4px);
+  pointer-events:none;
+  animation:flicker 0.15s infinite;
+}
+@keyframes flicker{0%{opacity:.9}50%{opacity:1}100%{opacity:.92}}
+
+.screen{display:none;width:90%;max-width:420px;}
+.active{display:block;}
+.box{
+  background:#0b0b2c;
+  border:3px solid #9ffcff;
+  border-radius:14px;
+  padding:28px;
+  box-shadow:0 0 10px #9ffcff44;
+}
+h1{font-family:'Press Start 2P';font-size:16px;color:#ffb3c6;}
+button{
+  margin-top:16px;
+  padding:12px 26px;
+  background:#ffb3c6;
+  border:none;
+  border-radius:8px;
+  font-family:'Press Start 2P';
+  font-size:10px;
+  cursor:pointer;
+}
+input{
+  margin-top:16px;
+  padding:10px;
+  width:80%;
+  font-size:20px;
+  font-family:'VT323';
+  background:#07071a;
+  border:2px solid #9ffcff;
+  color:#9ffcff;
+}
+
+/* KEY / GIFT */
+.key{font-size:60px;position:absolute;cursor:pointer;}
+.gift{font-size:90px;cursor:pointer;}
+
+/* PARTICLES */
+.particle{
+  position:absolute;
+  font-size:26px;
+  pointer-events:none;
+  animation:explode 2.5s ease-out forwards;
+}
+@keyframes explode{
+0%{transform:translate(0,0) scale(1) rotate(0deg);opacity:1;}
+100%{transform:translate(var(--x),var(--y)) scale(1.5) rotate(720deg);opacity:0;}
+}
+
+/* BUTTERFLY */
+.butterfly{
+  position:absolute;
+  font-size:30px;
+  animation:fly linear infinite;
+  transform-origin:center;
+}
+@keyframes fly{
+0%{transform:translate(var(--x0),var(--y0)) rotate(0deg) scaleY(1);}
+25%{transform:translate(calc(var(--x0)+50px),calc(var(--y0)-30px)) rotate(10deg) scaleY(-1);}
+50%{transform:translate(calc(var(--x0)+100px),var(--y0)) rotate(-10deg) scaleY(1);}
+75%{transform:translate(calc(var(--x0)+50px),calc(var(--y0)+30px)) rotate(10deg) scaleY(-1);}
+100%{transform:translate(var(--x0),var(--y0)) rotate(0deg) scaleY(1);}
+}
+</style>
+</head>
+<body>
+
+<!-- DECRYPT -->
+<div id="decrypt" class="screen active box">
+<h1>Decrypting...</h1>
+<p id="decryptText"></p>
+</div>
+
+<!-- PASSWORD -->
+<div id="passwordScreen" class="screen box">
+<h1>enter password</h1>
+<input id="password" type="password">
+<br>
+<button onclick="checkPassword()">ENTER</button>
+</div>
+
+<!-- KEY -->
+<div id="keyScreen" class="screen">
+<h2>catch the key 🔑</h2>
+<div id="key" class="key">🔑</div>
+</div>
+
+<!-- GIFT -->
+<div id="giftScreen" class="screen box">
+<h2>you found it</h2>
+<p>open your gift</p>
+<div class="gift" onclick="openGift()">🎁</div>
+</div>
+
+<!-- BIRTHDAY MESSAGE -->
+<div id="birthdayScreen" class="screen box">
+<h2>To Vidhatri 🌸</h2>
+<p style="color:#ffb3c6">my favoraitest flower</p>
+<h1>Happy Birthday ❤️</h1>
+<p>you're my favourite person, i love you</p>
+</div>
+
+<script>
+/* SHOW SCREEN */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"))
+  document.getElementById(id).classList.add("active")
+}
+
+/* DECRYPT */
+function startDecrypt(){
+  let text="DECRYPTING SPECIAL MESSAGE...";
+  let i=0;
+  let type=setInterval(()=>{
+    document.getElementById("decryptText").innerHTML+=text[i];
+    i++;
+    if(i>=text.length){
+      clearInterval(type);
+      setTimeout(()=>show("passwordScreen"),1200)
+    }
+  },70)
+}
+
+/* PASSWORD */
+function checkPassword(){
+  if(document.getElementById("password").value==="sunshine"){
+    show("keyScreen");
+    startKey();
+  }
+}
+
+/* KEY MOVEMENT */
+let key=document.getElementById("key");
+function startKey(){
+  setInterval(()=>{
+    key.style.left=Math.random()*85+"vw";
+    key.style.top=Math.random()*75+"vh";
+  },700)
+}
+key.onclick=()=>show("giftScreen");
+
+/* PARTICLE EXPLOSION */
+function explosion(emojis,count){
+  for(let i=0;i<count;i++){
+    let p=document.createElement("div");
+    p.className="particle";
+    p.innerText=emojis[Math.floor(Math.random()*emojis.length)];
+    let x=(Math.random()-0.5)*600+"px";
+    let y=(Math.random()-0.5)*600+"px";
+    p.style.setProperty("--x",x);
+    p.style.setProperty("--y",y);
+    p.style.left=window.innerWidth/2+"px";
+    p.style.top=window.innerHeight/2+"px";
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),2500)
+  }
+}
+
+/* BUTTERFLY + FLOWER FLOAT */
+function floatButterflies(count){
+  for(let i=0;i<count;i++){
+    let b=document.createElement("div");
+    b.className="butterfly";
+    b.innerText="🦋";
+    b.style.left=Math.random()*window.innerWidth+"px";
+    b.style.top=Math.random()*window.innerHeight+"px";
+    b.style.setProperty("--x0",b.style.left);
+    b.style.setProperty("--y0",b.style.top);
+    b.style.animationDuration=(Math.random()*5+4)+"s";
+    document.body.appendChild(b);
+    setTimeout(()=>b.remove(),12000)
+  }
+}
+
+function floatFlowers(count){
+  for(let i=0;i<count;i++){
+    let f=document.createElement("div");
+    f.className="particle";
+    f.innerText=["🌸","🌼","💮","🌺"][Math.floor(Math.random()*4)];
+    let x=(Math.random()-0.5)*600+"px";
+    let y=(Math.random()-0.5)*600+"px";
+    f.style.setProperty("--x",x);
+    f.style.setProperty("--y",y);
+    f.style.left=Math.random()*window.innerWidth+"px";
+    f.style.top=Math.random()*window.innerHeight+"px";
+    f.style.fontSize=(Math.random()*25+15)+"px";
+    document.body.appendChild(f);
+    setTimeout(()=>f.remove(),8000)
+  }
+}
+
+/* OPEN GIFT */
+function openGift(){
+  explosion(["🌸","🦋","🌼","💖"],50);
+  show("birthdayScreen");
+  setInterval(()=>{floatButterflies(5); floatFlowers(10); explosion(["💖","🌸","🦋","✨"],3)},1000)
+}
+
+/* START */
+startDecrypt();
+</script>
+
+</body>
+</html>
